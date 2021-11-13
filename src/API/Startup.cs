@@ -1,5 +1,10 @@
+using System;
+using DAL;
+using DAL.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,6 +23,15 @@ namespace API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<DataContext>(options =>
+            {
+                options.UseSqlServer(Configuration["ConnectionStrings:Default"]);
+            });
+
+            services.AddIdentity<User, IdentityRole<Guid>>()
+                    .AddEntityFrameworkStores<DataContext>()
+                    .AddDefaultTokenProviders();
+            
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "API", Version = "v1"}); });
         }
