@@ -6,6 +6,7 @@ using API.Contracts.Responses;
 using API.Dtos;
 using DAL;
 using DAL.Entities;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,16 +53,9 @@ namespace API.Services
                 return null;
             }
             
-            string userName = await GenerateUserNameAsync(request.Email);
-
-            var user = new User
-            {
-                Name = request.Name,
-                Surname = request.Surname,
-                Email = request.Email,
-                UserName = userName
-            };
-
+            User user = request.Adapt<User>();
+            user.UserName = await GenerateUserNameAsync(request.Email);
+            
             IdentityResult createResult = await _userManager.CreateAsync(user, request.Password);
 
             if (!createResult.Succeeded)
@@ -73,13 +67,7 @@ namespace API.Services
 
             return new AuthorizedResponse
             {
-                User = new UserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Surname = user.Surname,
-                    Username = user.UserName,
-                }
+                User = user.Adapt<UserDto>()
             };
         }
 
@@ -101,14 +89,7 @@ namespace API.Services
             
             return new AuthorizedResponse
             {
-                User = new UserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Photo = user.Photo,
-                    Surname = user.Surname,
-                    Username = user.UserName,
-                }
+                User = user.Adapt<UserDto>()
             };
         }
     }
