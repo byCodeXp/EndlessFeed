@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using API.Contracts.Requests;
 using API.Contracts.Responses;
 using API.Dtos;
+using API.Exceptions;
 using DAL;
 using DAL.Entities;
 using Mapster;
@@ -50,7 +51,7 @@ namespace API.Services
         {
             if (await _context.Users.AnyAsync(user => user.Email == request.Email))
             {
-                return null;
+                throw new BadRequestRestException("Invalid credentials");
             }
             
             User user = request.Adapt<User>();
@@ -60,7 +61,7 @@ namespace API.Services
 
             if (!createResult.Succeeded)
             {
-                return null;
+                throw new BadRequestRestException("Invalid credentials");
             }
 
             await _userManager.AddToRoleAsync(user, Env.Roles.USER);
@@ -77,14 +78,14 @@ namespace API.Services
 
             if (user == null)
             {
-                return null;
+                throw new BadRequestRestException("Invalid credentials");
             }
 
             bool checkPassword = await _userManager.CheckPasswordAsync(user, request.Password);
 
             if (!checkPassword)
             {
-                return null;
+                throw new BadRequestRestException("Invalid credentials");
             }
             
             return new AuthorizedResponse

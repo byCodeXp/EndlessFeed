@@ -1,4 +1,5 @@
 using System;
+using API.Middlewares;
 using API.Services;
 using DAL;
 using DAL.Entities;
@@ -47,6 +48,8 @@ namespace API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
             }
+
+            app.UseMiddleware<ErrorsHandlerMiddleware>();
 
             app.UseHttpsRedirection();
 
