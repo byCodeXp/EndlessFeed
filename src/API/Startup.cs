@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 namespace API
 {
@@ -34,6 +36,12 @@ namespace API
                     .AddEntityFrameworkStores<DataContext>()
                     .AddDefaultTokenProviders();
 
+            services.AddFluentValidation(options =>
+            {
+                options.DisableDataAnnotationsValidation = false;
+                options.RegisterValidatorsFromAssemblyContaining<Startup>();
+            });
+            
             services.AddTransient<IdentityService>();
             
             services.AddControllers();
