@@ -1,4 +1,5 @@
 using System;
+using API.Services;
 using DAL;
 using DAL.Entities;
 using Microsoft.AspNetCore.Builder;
@@ -31,6 +32,8 @@ namespace API
             services.AddIdentity<User, IdentityRole<Guid>>()
                     .AddEntityFrameworkStores<DataContext>()
                     .AddDefaultTokenProviders();
+
+            services.AddTransient<IdentityService>();
             
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "API", Version = "v1"}); });
