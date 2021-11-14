@@ -17,7 +17,10 @@ namespace DAL
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new UserConfiguration());
+            builder.ApplyConfiguration(new PostConfiguration());
             base.OnModelCreating(builder);
         }
+        
+        public DbSet<Post> Posts { get; set; }
     }
 }

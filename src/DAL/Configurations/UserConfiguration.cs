@@ -13,10 +13,17 @@ namespace DAL.Configurations
                 .Property(entity => entity.CreatedTimeStamp)
                 .HasDefaultValue(DateTime.UtcNow)
                 .ValueGeneratedOnAdd();
+            
             builder
+                    
                 .Property(entity => entity.UpdatedTimeStamp)
                 .HasDefaultValue(DateTime.UtcNow)
                 .ValueGeneratedOnAddOrUpdate();
+            
+            // Relationships one to many
+            builder
+                .HasMany(user => user.Posts)
+                .WithOne(post => post.Author);
         }
     }
 }

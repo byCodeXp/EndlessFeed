@@ -7,13 +7,15 @@ namespace DAL.Configurations.Base
 {
     public class EntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity> where TEntity : Entity
     {
-        public void Configure(EntityTypeBuilder<TEntity> builder)
+        public virtual void Configure(EntityTypeBuilder<TEntity> builder)
         {
             builder.HasKey(entity => entity.Id);
+            
             builder
                 .Property(entity => entity.CreatedTimeStamp)
                 .HasDefaultValue(DateTime.UtcNow)
                 .ValueGeneratedOnAdd();
+            
             builder
                 .Property(entity => entity.UpdatedTimeStamp)
                 .HasDefaultValue(DateTime.UtcNow)
