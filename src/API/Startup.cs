@@ -1,4 +1,6 @@
 using System;
+using System.Text;
+using API.Helpers;
 using API.Middlewares;
 using API.Services;
 using DAL;
@@ -11,8 +13,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API
 {
@@ -36,13 +39,39 @@ namespace API
                     .AddEntityFrameworkStores<DataContext>()
                     .AddDefaultTokenProviders();
 
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                byte[] secret = Encoding.ASCII.GetBytes(Configuration["Jwt:Secret"]);
+                
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = new SymmetricSecurityKey(secret),
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    RequireExpirationTime = false,
+                    ValidateLifetime = true
+                };
+            });
+            
             services.AddFluentValidation(options =>
             {
                 options.DisableDataAnnotationsValidation = false;
                 options.RegisterValidatorsFromAssemblyContaining<Startup>();
             });
             
+            // Connect services
             services.AddTransient<IdentityService>();
+            
+            // Connect helpers
+            services.AddTransient<JwtHelper>();
             
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "API", Version = "v1"}); });
@@ -63,6 +92,7 @@ namespace API
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
