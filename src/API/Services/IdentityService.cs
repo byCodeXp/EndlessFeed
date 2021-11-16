@@ -24,27 +24,27 @@ namespace API.Services
             _context = context;
         }
 
+        private static readonly Regex Regex = new ("@[a-z]*.[a-z]*");
         private async Task<string> GenerateUserNameAsync(string email)
         {
-            string symbols = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
-            
-            string pattern = "@[a-z]*.[a-z]*";
-            string userName = Regex.Replace(email, pattern, "");
+            const string symbols = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
+
+            string newUserName = Regex.Replace(email, "");
 
             var rand = new Random(DateTime.Now.Millisecond);
             
             while (true)
             {
-                if (!await _context.Users.AnyAsync(user => user.UserName == userName))
+                if (!await _context.Users.AnyAsync(user => user.UserName == newUserName))
                 {
                     break;
                 }
                 
                 int index = rand.Next(symbols.Length);
-                userName += symbols[index];
+                newUserName += symbols[index];
             }
             
-            return userName;
+            return newUserName;
         }
         
         public async Task<AuthorizedResponse> RegisterAsync(RegisterRequest request)
@@ -57,9 +57,9 @@ namespace API.Services
             User user = request.Adapt<User>();
             user.UserName = await GenerateUserNameAsync(request.Email);
             
-            IdentityResult createResult = await _userManager.CreateAsync(user, request.Password);
+            IdentityResult createNewUserResult = await _userManager.CreateAsync(user, request.Password);
 
-            if (!createResult.Succeeded)
+            if (!createNewUserResult.Succeeded)
             {
                 throw new BadRequestRestException("Invalid credentials");
             }
@@ -76,14 +76,14 @@ namespace API.Services
         {
             User user = await _userManager.FindByEmailAsync(request.Email);
 
-            if (user == null)
+            if (user is null)
             {
                 throw new BadRequestRestException("Invalid credentials");
             }
 
-            bool checkPassword = await _userManager.CheckPasswordAsync(user, request.Password);
+            bool passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
 
-            if (!checkPassword)
+            if (!passwordValid)
             {
                 throw new BadRequestRestException("Invalid credentials");
             }
