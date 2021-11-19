@@ -18,20 +18,20 @@ namespace API.Controllers
             _identityService = identityService;
         }
 
-        [HttpPost(Env.Routes.Identity.REGISTER)]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             return Ok(await _identityService.RegisterAsync(request));
         }
         
-        [HttpPost(Env.Routes.Identity.LOGIN)]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             return Ok(await _identityService.LoginAsync(request));
         }
 
-        [HttpGet(Env.Routes.Identity.GET_USER)]
-        [Authorize(Roles = Env.Roles.USER + "," + Env.Roles.ADMIN)]
+        [HttpGet("user")]
+        [Authorize(Roles = Env.Roles.ALL)]
         public async Task<IActionResult> GetUser()
         {
             var userId = User.Claims.FirstOrDefault(claim => claim.Type == Env.IdentityClaims.ID)?.Value;

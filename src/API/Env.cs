@@ -13,23 +13,14 @@ namespace API
         public class IdentityClaims
         {
             public const string ID = "id";
-            public const string ROLES = "roles";
+            public const string ROLES = "role";
         }
         
         public class Roles
         {
             public const string USER = "User";
             public const string ADMIN = "Admin";
-        }
-        
-        public class Routes
-        {
-            public class Identity
-            {
-                public const string REGISTER = "register";
-                public const string LOGIN = "login";
-                public const string GET_USER = "user";
-            }
+            public const string ALL = "User, Admin";
         }
     }
 }
