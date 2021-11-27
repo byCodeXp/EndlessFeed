@@ -6,5 +6,6 @@ namespace DAL.Entities
     {
         public string Text { get; set; }
         public User Author { get; set; }
+        public Publish Publish { get; set; }
     }
 }

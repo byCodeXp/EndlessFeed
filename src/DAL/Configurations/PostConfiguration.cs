@@ -19,6 +19,12 @@ namespace DAL.Configurations
             builder
                 .HasOne(post => post.Author)
                 .WithMany(user => user.Posts);
+            
+            // Relationship one to one
+            builder
+                .HasOne(post => post.Publish)
+                .WithOne(publish => publish.Post)
+                .HasForeignKey<Publish>(publish => publish.PostId);
         }
     }
 }

@@ -20,6 +20,13 @@ namespace API.Controllers
             _postsService = postsService;
         }
 
+        [HttpGet("{perPage}/{page}")]
+        [AllowAnonymous]
+        public IActionResult Get([FromRoute] GetPublishesRequest request)
+        {
+            return Ok(_postsService.GetPublishedPosts(request));
+        }
+
         [HttpGet("top")]
         public async Task<IActionResult> Top()
         {

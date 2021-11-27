@@ -15,7 +15,6 @@ namespace DAL.Configurations
                 .ValueGeneratedOnAdd();
             
             builder
-                    
                 .Property(entity => entity.UpdatedTimeStamp)
                 .HasDefaultValue(DateTime.UtcNow)
                 .ValueGeneratedOnAddOrUpdate();

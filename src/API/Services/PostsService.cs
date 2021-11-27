@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using API.Contracts.Requests;
 using API.Dtos;
@@ -18,6 +20,23 @@ namespace API.Services
         public PostsService(DataContext context)
         {
             _context = context;
+        }
+
+        private int CalculateOffset(int page, int perPage) => page <= 0 ? 1 : page * perPage - perPage;
+        
+        public IEnumerable<PostDto> GetPublishedPosts(GetPublishesRequest request)
+        {
+            int skip = CalculateOffset(request.Page, request.PerPage);
+            int take = request.PerPage;
+            
+            IEnumerable<Post> posts = _context.Publishes
+                .Include(publish => publish.Post)
+                .OrderByDescending(publish => publish.CreatedTimeStamp)
+                .Skip(skip)
+                .Take(take)
+                .Select(publish => publish.Post);
+
+            return posts.Adapt<IEnumerable<PostDto>>();
         }
 
         public async Task<PostDto> GetTopPostAsync(Guid userId)
