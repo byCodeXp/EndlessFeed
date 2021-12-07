@@ -1,9 +1,9 @@
 ﻿using API.Validation.Rules;
 using FluentValidation;
 
-namespace API.Contracts.Requests
+namespace API.Contracts.Requests.v1
 {
-    public record RegisterRequest
+    public record RegisterRequestV1
     {
         public string Name { get; set; }
         public string Surname { get; set; }
@@ -11,9 +11,9 @@ namespace API.Contracts.Requests
         public string Password { get; set; }
     }
     
-    public class RegisterRequestValidation : AbstractValidator<RegisterRequest>
+    public class RegisterRequestV1Validation : AbstractValidator<RegisterRequestV1>
     {
-        public RegisterRequestValidation()
+        public RegisterRequestV1Validation()
         {
             RuleFor(request => request.Name).NotEmpty();
             RuleFor(request => request.Surname).NotEmpty();

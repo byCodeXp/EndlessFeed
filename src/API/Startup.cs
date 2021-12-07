@@ -3,6 +3,7 @@ using System.Text;
 using API.Helpers;
 using API.Middlewares;
 using API.Services;
+using API.Services.v1;
 using DAL;
 using DAL.Entities;
 using Microsoft.AspNetCore.Builder;
@@ -68,9 +69,9 @@ namespace API
             });
             
             // Connect services
-            services.AddTransient<IdentityService>();
-            services.AddTransient<PostsService>();
-            services.AddTransient<CommentsService>();
+            services.AddTransient<IdentityServiceV1>();
+            services.AddTransient<PostsServiceV1>();
+            services.AddTransient<CommentsServiceV1>();
             
             // Connect helpers
             services.AddTransient<JwtHelper>();

@@ -1,16 +1,16 @@
 ﻿using FluentValidation;
 
-namespace API.Contracts.Requests
+namespace API.Contracts.Requests.v1
 {
-    public record GetPublishesRequest
+    public record GetPublishesRequestV1
     {
         public int Page { get; set; }
         public int PerPage { get; set; }
     }
 
-    public class GetPostsRequestValidation : AbstractValidator<GetPublishesRequest>
+    public class GetPostsRequestV1Validation : AbstractValidator<GetPublishesRequestV1>
     {
-        public GetPostsRequestValidation()
+        public GetPostsRequestV1Validation()
         {
             RuleFor(request => request.Page).GreaterThan(0);
             RuleFor(request => request.PerPage).GreaterThan(0);

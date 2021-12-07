@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-using API.Contracts.Requests;
+using API.Contracts.Requests.v1;
 using API.Dtos;
 using API.Exceptions;
 using DAL;
@@ -11,23 +10,23 @@ using DAL.Entities;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Services
+namespace API.Services.v1
 {
-    public class PostsService
+    public class PostsServiceV1
     {
         private readonly DataContext _context;
 
-        public PostsService(DataContext context)
+        public PostsServiceV1(DataContext context)
         {
             _context = context;
         }
 
         private int CalculateOffset(int page, int perPage) => page <= 0 ? 1 : page * perPage - perPage;
         
-        public IEnumerable<PostDto> GetPublishedPosts(GetPublishesRequest request)
+        public IEnumerable<PostDto> GetPublishedPosts(GetPublishesRequestV1 requestV1)
         {
-            int skip = CalculateOffset(request.Page, request.PerPage);
-            int take = request.PerPage;
+            int skip = CalculateOffset(requestV1.Page, requestV1.PerPage);
+            int take = requestV1.PerPage;
             
             IEnumerable<Post> posts = _context.Publishes
                 .Include(publish => publish.Post)
@@ -58,7 +57,7 @@ namespace API.Services
             return post.Adapt<PostDto>();
         }
         
-        public async Task<PostDto> CreateAsync(Guid userId, CreatePostRequest request)
+        public async Task<PostDto> CreateAsync(Guid userId, CreatePostRequestV1 requestV1)
         {
             User user = await _context.Users.FindAsync(userId);
 
@@ -69,7 +68,7 @@ namespace API.Services
             
             var post = new Post
             {
-                Text = request.Text,
+                Text = requestV1.Text,
                 Author = user
             };
             
@@ -80,7 +79,7 @@ namespace API.Services
             return post.Adapt<PostDto>();
         }
 
-        public async Task UpdateAsync(Guid userId, UpdatePostRequest request)
+        public async Task UpdateAsync(Guid userId, UpdatePostRequestV1 requestV1)
         {
             User user = await _context.Users.FindAsync(userId);
 
@@ -91,14 +90,14 @@ namespace API.Services
 
             await _context.Entry(user).Collection(u => u.Posts).LoadAsync();
             
-            var post = user.Posts.FirstOrDefault(post => post.Id == request.Id);
+            var post = user.Posts.FirstOrDefault(post => post.Id == requestV1.Id);
 
             if (post is null)
             {
                 throw new BadRequestRestException("Post does not exists");
             }
 
-            post.Text = request.Text;
+            post.Text = requestV1.Text;
             
             await _context.SaveChangesAsync();
         }

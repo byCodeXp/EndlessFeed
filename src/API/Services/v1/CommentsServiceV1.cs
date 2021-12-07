@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using API.Contracts.Requests;
+using API.Contracts.Requests.v1;
 using API.Dtos;
 using API.Exceptions;
 using DAL;
@@ -10,13 +10,13 @@ using DAL.Entities;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Services
+namespace API.Services.v1
 {
-    public class CommentsService
+    public class CommentsServiceV1
     {
         private readonly DataContext _context;
 
-        public CommentsService(DataContext context)
+        public CommentsServiceV1(DataContext context)
         {
             _context = context;
         }
@@ -45,7 +45,7 @@ namespace API.Services
             return user.Comments.Adapt<IEnumerable<CommentDto>>();
         }
         
-        public async Task<CommentDto> CreateCommentAsync(CreateCommentRequest request, Guid userId)
+        public async Task<CommentDto> CreateCommentAsync(CreateCommentRequestV1 requestV1, Guid userId)
         {
             // TODO: check if post published then create comment
             
@@ -58,7 +58,7 @@ namespace API.Services
 
             await _context.Entry(user).Collection(c => c.Posts).LoadAsync();
 
-            var post = user.Posts.FirstOrDefault(m => m.Id == request.PostId);
+            var post = user.Posts.FirstOrDefault(m => m.Id == requestV1.PostId);
 
             if (post is null)
             {
@@ -67,7 +67,7 @@ namespace API.Services
             
             var comment = new Comment
             {
-                Text = request.Text,
+                Text = requestV1.Text,
                 Post = post,
                 Author = user
             };
@@ -79,7 +79,7 @@ namespace API.Services
             return comment.Adapt<CommentDto>();
         }
 
-        public async Task UpdateCommentAsync(UpdateCommentRequest request, Guid userId)
+        public async Task UpdateCommentAsync(UpdateCommentRequestV1 requestV1, Guid userId)
         {
             // TODO: check if post published then create comment
             
@@ -92,14 +92,14 @@ namespace API.Services
             
             await _context.Entry(user).Collection(c => c.Comments).LoadAsync();
             
-            var comment = user.Comments.FirstOrDefault(m => m.Id == request.CommentId);
+            var comment = user.Comments.FirstOrDefault(m => m.Id == requestV1.CommentId);
 
             if (comment is null)
             {
                 throw new BadRequestRestException("Comment does not exists");
             }
 
-            comment.Text = request.Text;
+            comment.Text = requestV1.Text;
             
             await _context.SaveChangesAsync();
         }

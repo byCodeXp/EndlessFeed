@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using API.Contracts.Requests;
-using API.Contracts.Responses;
+using API.Contracts.Requests.v1;
+using API.Contracts.Responses.v1;
 using API.Dtos;
 using API.Exceptions;
 using API.Helpers;
@@ -12,32 +12,32 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Services
+namespace API.Services.v1
 {
-    public class IdentityService
+    public class IdentityServiceV1
     {
         private readonly UserManager<User> _userManager;
         private readonly DataContext _context;
         private readonly JwtHelper _jwtHelper;
 
-        public IdentityService(UserManager<User> userManager, DataContext context, JwtHelper jwtHelper)
+        public IdentityServiceV1(UserManager<User> userManager, DataContext context, JwtHelper jwtHelper)
         {
             _userManager = userManager;
             _context = context;
             _jwtHelper = jwtHelper;
         }
 
-        public async Task<AuthorizedResponse> RegisterAsync(RegisterRequest request)
+        public async Task<AuthorizedResponseV1> RegisterAsync(RegisterRequestV1 requestV1)
         {
-            if (await _context.Users.AnyAsync(user => user.Email == request.Email))
+            if (await _context.Users.AnyAsync(user => user.Email == requestV1.Email))
             {
                 throw new BadRequestRestException("Invalid credentials");
             }
             
-            User user = request.Adapt<User>();
-            user.UserName = await GenerateUniqueUserNameAsync(request.Email);
+            User user = requestV1.Adapt<User>();
+            user.UserName = await GenerateUniqueUserNameAsync(requestV1.Email);
             
-            IdentityResult createNewUserResult = await _userManager.CreateAsync(user, request.Password);
+            IdentityResult createNewUserResult = await _userManager.CreateAsync(user, requestV1.Password);
 
             if (!createNewUserResult.Succeeded)
             {
@@ -49,16 +49,16 @@ namespace API.Services
             return await GenerateAuthorizedResponse(user, Env.TokenExpirationTime.OneDay);
         }
 
-        public async Task<AuthorizedResponse> LoginAsync(LoginRequest request)
+        public async Task<AuthorizedResponseV1> LoginAsync(LoginRequestV1 requestV1)
         {
-            User user = await _userManager.FindByEmailAsync(request.Email);
+            User user = await _userManager.FindByEmailAsync(requestV1.Email);
 
             if (user is null)
             {
                 throw new BadRequestRestException("Invalid credentials");
             }
 
-            bool passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
+            bool passwordValid = await _userManager.CheckPasswordAsync(user, requestV1.Password);
 
             if (!passwordValid)
             {
@@ -67,7 +67,7 @@ namespace API.Services
 
             TimeSpan tokenDuration = Env.TokenExpirationTime.OneDay;
 
-            if (request.Remember)
+            if (requestV1.Remember)
             {
                 tokenDuration = Env.TokenExpirationTime.SevenDays;
             }
@@ -87,13 +87,13 @@ namespace API.Services
             return user.Adapt<UserDto>();
         }
 
-        private async Task<AuthorizedResponse> GenerateAuthorizedResponse(User user, TimeSpan tokenLifetime)
+        private async Task<AuthorizedResponseV1> GenerateAuthorizedResponse(User user, TimeSpan tokenLifetime)
         {
             string roles = string.Join(",", await _userManager.GetRolesAsync(user));
 
             string token = _jwtHelper.GenerateToken(user.Id.ToString(), roles, tokenLifetime);
             
-            return new AuthorizedResponse
+            return new AuthorizedResponseV1
             {
                 Token = token,
                 User = user.Adapt<UserDto>()

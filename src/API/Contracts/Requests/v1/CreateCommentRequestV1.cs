@@ -1,17 +1,17 @@
 ﻿using System;
 using FluentValidation;
 
-namespace API.Contracts.Requests
+namespace API.Contracts.Requests.v1
 {
-    public record CreateCommentRequest
+    public record CreateCommentRequestV1
     {
         public Guid PostId { get; set; }
         public string Text { get; set; }
     }
 
-    public class CreateCommentRequestValidation : AbstractValidator<CreateCommentRequest>
+    public class CreateCommentRequestV1Validation : AbstractValidator<CreateCommentRequestV1>
     {
-        public CreateCommentRequestValidation()
+        public CreateCommentRequestV1Validation()
         {
             RuleFor(m => m.PostId).NotEmpty();
             RuleFor(m => m.Text).NotEmpty();
