@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using API.Attributes;
 using API.Contracts.Requests.v1;
 using API.Services.v1;
 using Microsoft.AspNetCore.Authorization;
@@ -7,9 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.v1
 {
-    [ApiController]
-    [Route("api/v1/identity")]
-    public class IdentityControllerV1 : ControllerBase
+    [ExtendedRoute("identity", 1)]
+    public class IdentityControllerV1 : ApiController
     {
         private readonly IdentityServiceV1 _identityServiceV1;
 

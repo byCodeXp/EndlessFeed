@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API.Attributes;
 using API.Contracts.Requests.v1;
 using API.Dtos;
 using API.Extensions;
@@ -10,10 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.v1
 {
-    [ApiController]
-    [Route("api/v1/posts")]
+    [ExtendedRoute("posts", 1)]
     [Authorize(Roles = Env.Roles.ALL)]
-    public class PostsControllerV1 : ControllerBase
+    public class PostsControllerV1 : ApiController
     {
         private readonly PostsServiceV1 _postsServiceV1;
         private readonly CommentsServiceV1 _commentsServiceV1;

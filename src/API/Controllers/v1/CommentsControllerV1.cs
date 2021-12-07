@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using API.Attributes;
 using API.Contracts.Requests.v1;
 using API.Dtos;
 using API.Extensions;
@@ -9,10 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.v1
 {
-    [ApiController]
-    [Route("api/v1/comments")]
+    [ExtendedRoute("comments", 1)]
     [Authorize(Roles = Env.Roles.ALL)]
-    public class CommentsControllerV1 : ControllerBase
+    public class CommentsControllerV1 : ApiController
     {
         private readonly CommentsServiceV1 _commentsServiceV1;
 
