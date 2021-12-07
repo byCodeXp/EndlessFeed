@@ -70,6 +70,7 @@ namespace API
             // Connect services
             services.AddTransient<IdentityService>();
             services.AddTransient<PostsService>();
+            services.AddTransient<CommentsService>();
             
             // Connect helpers
             services.AddTransient<JwtHelper>();

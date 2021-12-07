@@ -6,7 +6,7 @@ namespace DAL.Configurations
 {
     public class PublishConfiguration : EntityConfiguration<Publish>
     {
-        public void Configure(EntityTypeBuilder<Publish> builder)
+        public override void Configure(EntityTypeBuilder<Publish> builder)
         {
             // Relationship one to one
             builder

@@ -24,5 +24,6 @@ namespace DAL
         
         public DbSet<Post> Posts { get; set; }
         public DbSet<Publish> Publishes { get; set; }
+        public DbSet<Comment> Comments { get; set; }
     }
 }

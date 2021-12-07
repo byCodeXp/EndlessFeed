@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using API.Contracts.Requests;
+using API.Dtos;
 using API.Extensions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -14,10 +16,12 @@ namespace API.Controllers
     public class PostsController : ControllerBase
     {
         private readonly PostsService _postsService;
+        private readonly CommentsService _commentsService;
 
-        public PostsController(PostsService postsService)
+        public PostsController(PostsService postsService, CommentsService commentsService)
         {
             _postsService = postsService;
+            _commentsService = commentsService;
         }
 
         [HttpGet("{perPage}/{page}")]
@@ -25,6 +29,12 @@ namespace API.Controllers
         public IActionResult Get([FromRoute] GetPublishesRequest request)
         {
             return Ok(_postsService.GetPublishedPosts(request));
+        }
+
+        [HttpGet("{postId}/comments")]
+        public async Task<IEnumerable<CommentDto>> GetCommentsFromPost(Guid postId)
+        {
+            return await _commentsService.GetCommentsFromPostAsync(postId);
         }
 
         [HttpGet("top")]

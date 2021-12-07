@@ -11,6 +11,7 @@ namespace DAL.Entities
         public string Photo { get; set; }
         public DateTime Birthday { get; set; }
         public List<Post> Posts { get; set; }
+        public List<Comment> Comments { get; set; }
         public DateTime CreatedTimeStamp { get; set; }
         public DateTime UpdatedTimeStamp { get; set; }
     }

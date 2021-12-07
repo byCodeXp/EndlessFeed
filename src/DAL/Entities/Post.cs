@@ -1,4 +1,5 @@
-﻿using DAL.Entities.Base;
+﻿using System.Collections.Generic;
+using DAL.Entities.Base;
 
 namespace DAL.Entities
 {
@@ -7,5 +8,6 @@ namespace DAL.Entities
         public string Text { get; set; }
         public User Author { get; set; }
         public Publish Publish { get; set; }
+        public List<Comment> Comments { get; set; }
     }
 }
