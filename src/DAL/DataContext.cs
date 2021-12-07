@@ -19,6 +19,8 @@ namespace DAL
             builder.ApplyConfiguration(new UserConfiguration());
             builder.ApplyConfiguration(new PostConfiguration());
             builder.ApplyConfiguration(new PublishConfiguration());
+            builder.ApplyConfiguration(new CommentConfiguration());
+            
             base.OnModelCreating(builder);
         }
         
