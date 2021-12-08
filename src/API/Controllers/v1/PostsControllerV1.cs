@@ -32,6 +32,7 @@ namespace API.Controllers.v1
         }
 
         [HttpGet("{postId}/comments")]
+        [AllowAnonymous]
         public async Task<IEnumerable<CommentDto>> GetCommentsFromPost(Guid postId)
         {
             return await _commentsServiceV1.GetCommentsFromPostAsync(postId);
@@ -64,6 +65,14 @@ namespace API.Controllers.v1
         {
             string userId = HttpContext.GetUserIdFromClaims();
             await _postsServiceV1.DeleteAsync(Guid.Parse(userId), postId);
+            return Ok();
+        }
+
+        [HttpPost("publish/{postId}")]
+        [Authorize(Roles = Env.Roles.ADMIN)]
+        public async Task<IActionResult> Publish(Guid postId)
+        {
+            await _postsServiceV1.PublishAsync(postId);
             return Ok();
         }
     }

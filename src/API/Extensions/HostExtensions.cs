@@ -1,4 +1,5 @@
 ﻿using System;
+using DAL.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,8 +13,10 @@ namespace API.Extensions
             using var scope = host.Services.CreateScope();
             var serviceProvider = scope.ServiceProvider;
             
-            var roleManager = serviceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
-            new Seed(roleManager).Invoke();
+            RoleManager<IdentityRole<Guid>> roleManager = serviceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
+            UserManager<User> userManager = serviceProvider.GetService<UserManager<User>>();
+            
+            new Seed(roleManager, userManager).Invoke();
             
             return host;
         }

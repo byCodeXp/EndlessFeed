@@ -129,5 +129,24 @@ namespace API.Services.v1
             
             await _context.SaveChangesAsync();
         }
+
+        public async Task PublishAsync(Guid postId)
+        {
+            Post post = await _context.Posts.FindAsync(postId);
+            
+            if (post is null)
+            {
+                throw new BadRequestRestException("Post does not exists");
+            }
+
+            var publish = new Publish
+            {
+                Post = post
+            };
+
+            await _context.AddAsync(publish);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
