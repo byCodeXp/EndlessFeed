@@ -50,7 +50,7 @@ public class PostsController : ApiController
         return Ok();
     }
 
-    [HttpDelete("delete/{postId}")]
+    [HttpDelete("{postId}/delete")]
     [Authorize(Roles = Env.Roles.USER)]
     public async Task<IActionResult> Delete(Guid postId)
     {
@@ -59,11 +59,19 @@ public class PostsController : ApiController
         return Ok();
     }
 
-    [HttpPost("publish/{postId}")]
+    [HttpPost("{postId}/publish")]
     [Authorize(Roles = Env.Roles.ADMIN)]
     public async Task<IActionResult> Publish(Guid postId)
     {
         await _postsService.PublishAsync(postId);
+        return Ok();
+    }
+
+    [HttpPost("{postId}/block")]
+    [Authorize(Roles = Env.Roles.ADMIN)]
+    public async Task<IActionResult> Block(Guid postId)
+    {
+        await _postsService.BlockPostAsync(postId);
         return Ok();
     }
 }

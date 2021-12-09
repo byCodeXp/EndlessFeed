@@ -54,7 +54,7 @@ public class PostsServiceV1 : Service
         return posts;
     }
 
-    public async Task<IEnumerable<CommentDto>> GetPublishedPostComments(Guid publishId)
+    public async Task<IEnumerable<CommentDto>> GetPublishedPostCommentsAsync(Guid publishId)
     {
         var publish = await Context.Publishes.FindAsync(publishId);
 
@@ -183,6 +183,25 @@ public class PostsServiceV1 : Service
 
         await Context.AddAsync(publish);
 
+        await Context.SaveChangesAsync();
+    }
+
+    public async Task BlockPostAsync(Guid postId)
+    {
+        Post post = await Context.Posts.FindAsync(postId);
+        
+        if (post is null)
+        {
+            throw new BadRequestRestException("Post does not exists");
+        }
+
+        var blockPost = new BlockPost
+        {
+            Post = post
+        };
+
+        await Context.BlockedPosts.AddAsync(blockPost);
+        
         await Context.SaveChangesAsync();
     }
 }

@@ -24,5 +24,11 @@ public class CommentConfiguration : EntityConfiguration<Comment>
         builder
             .HasOne(m => m.Author)
             .WithMany(c => c.Comments);
+        
+        // Relationship one to one
+        builder
+            .HasOne(comment => comment.BlockComment)
+            .WithOne(blockComment => blockComment.Comment)
+            .HasForeignKey<BlockComment>(blockComment => blockComment.CommentId);
     }
 }

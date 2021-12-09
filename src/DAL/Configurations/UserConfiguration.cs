@@ -23,5 +23,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder
             .HasMany(user => user.Posts)
             .WithOne(post => post.Author);
+        
+        // Relationship one to one
+        builder
+            .HasOne(user => user.BlockUser)
+            .WithOne(blockUser => blockUser.User)
+            .HasForeignKey<BlockUser>(blockUser => blockUser.UserId);
     }
 }

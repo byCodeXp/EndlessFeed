@@ -27,7 +27,7 @@ public class PublishesController : ApiController
     [HttpGet("{publishId}/comments")]
     public IActionResult Comments([FromRoute] Guid publishId)
     {
-        return Ok(_postsService.GetPublishedPostComments(publishId));
+        return Ok(_postsService.GetPublishedPostCommentsAsync(publishId));
     }
 
     [Authorize(Roles = Env.Roles.ADMIN)]
