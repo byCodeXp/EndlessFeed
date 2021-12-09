@@ -27,4 +27,23 @@ public class UsersServiceV1 : Service
 
         return user.Adapt<UserDto>();
     }
+
+    public async Task BlockUserByIdAsync(Guid userId)
+    {
+        var user = await Context.FindAsync<User>(userId);
+
+        if (user is null)
+        {
+            throw new BadRequestRestException("User does not exists");
+        }
+
+        var blockUser = new BlockUser
+        {
+            User = user
+        };
+
+        await Context.BlockedUsers.AddAsync(blockUser);
+
+        await Context.SaveChangesAsync();
+    }
 }

@@ -35,10 +35,18 @@ public class CommentsController : ApiController
         await _commentsService.UpdateCommentAsync(request, Guid.Parse(userId));
     }
         
-    [HttpDelete("delete/{commentId}")]
-    public async Task Update([FromRoute] Guid commentId)
+    [HttpDelete("{commentId}/delete")]
+    public async Task<IActionResult> Delete([FromRoute] Guid commentId)
     {
         string userId = HttpContext.GetUserIdFromClaims();
         await _commentsService.DeleteCommentAsync(commentId, Guid.Parse(userId));
+        return Ok();
+    }
+
+    [HttpPost("{commentId}/block")]
+    public async Task<IActionResult> Block(Guid commentId)
+    {
+        await _commentsService.BlockCommentByIdAsync(commentId);
+        return Ok();
     }
 }

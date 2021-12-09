@@ -8,6 +8,7 @@ using API.Services.Base;
 using DAL;
 using DAL.Entities;
 using Mapster;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Services.v1;
 
@@ -99,6 +100,25 @@ public class CommentsServiceV1 : Service
 
         Context.Remove(comment);
             
+        await Context.SaveChangesAsync();
+    }
+
+    public async Task BlockCommentByIdAsync(Guid commentId)
+    {
+        var comment = await Context.Comments.FindAsync(commentId);
+
+        if (comment is null)
+        {
+            throw new BadRequestRestException("Comment does not exists");
+        }
+
+        var blockComment = new BlockComment
+        {
+            Comment = comment
+        };
+
+        await Context.BlockedComments.AddAsync(blockComment);
+
         await Context.SaveChangesAsync();
     }
 }
