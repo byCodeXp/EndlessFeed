@@ -3,26 +3,25 @@ using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DAL.Configurations
+namespace DAL.Configurations;
+
+public class UserConfiguration : IEntityTypeConfiguration<User>
 {
-    public class UserConfiguration : IEntityTypeConfiguration<User>
+    public void Configure(EntityTypeBuilder<User> builder)
     {
-        public void Configure(EntityTypeBuilder<User> builder)
-        {
-            builder
-                .Property(entity => entity.CreatedTimeStamp)
-                .HasDefaultValue(DateTime.UtcNow)
-                .ValueGeneratedOnAdd();
+        builder
+            .Property(entity => entity.CreatedTimeStamp)
+            .HasDefaultValue(DateTime.UtcNow)
+            .ValueGeneratedOnAdd();
             
-            builder
-                .Property(entity => entity.UpdatedTimeStamp)
-                .HasDefaultValue(DateTime.UtcNow)
-                .ValueGeneratedOnAddOrUpdate();
+        builder
+            .Property(entity => entity.UpdatedTimeStamp)
+            .HasDefaultValue(DateTime.UtcNow)
+            .ValueGeneratedOnAddOrUpdate();
             
-            // Relationships one to many
-            builder
-                .HasMany(user => user.Posts)
-                .WithOne(post => post.Author);
-        }
+        // Relationships one to many
+        builder
+            .HasMany(user => user.Posts)
+            .WithOne(post => post.Author);
     }
 }

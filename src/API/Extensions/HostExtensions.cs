@@ -4,21 +4,20 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace API.Extensions
+namespace API.Extensions;
+
+public static class HostExtensions
 {
-    public static class HostExtensions
+    public static IHost Seed(this IHost host)
     {
-        public static IHost Seed(this IHost host)
-        {
-            using var scope = host.Services.CreateScope();
-            var serviceProvider = scope.ServiceProvider;
+        using var scope = host.Services.CreateScope();
+        var serviceProvider = scope.ServiceProvider;
             
-            RoleManager<IdentityRole<Guid>> roleManager = serviceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
-            UserManager<User> userManager = serviceProvider.GetService<UserManager<User>>();
+        RoleManager<IdentityRole<Guid>> roleManager = serviceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
+        UserManager<User> userManager = serviceProvider.GetService<UserManager<User>>();
             
-            new Seed(roleManager, userManager).Invoke();
+        new Seed(roleManager, userManager).Invoke();
             
-            return host;
-        }
+        return host;
     }
 }

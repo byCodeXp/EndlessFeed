@@ -12,116 +12,115 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Services.v1
+namespace API.Services.v1;
+
+public class IdentityServiceV1
 {
-    public class IdentityServiceV1
+    private readonly UserManager<User> _userManager;
+    private readonly DataContext _context;
+    private readonly JwtHelper _jwtHelper;
+
+    public IdentityServiceV1(UserManager<User> userManager, DataContext context, JwtHelper jwtHelper)
     {
-        private readonly UserManager<User> _userManager;
-        private readonly DataContext _context;
-        private readonly JwtHelper _jwtHelper;
+        _userManager = userManager;
+        _context = context;
+        _jwtHelper = jwtHelper;
+    }
 
-        public IdentityServiceV1(UserManager<User> userManager, DataContext context, JwtHelper jwtHelper)
+    public async Task<AuthorizedResponseV1> RegisterAsync(RegisterRequestV1 request)
+    {
+        if (await _context.Users.AnyAsync(user => user.Email == request.Email))
         {
-            _userManager = userManager;
-            _context = context;
-            _jwtHelper = jwtHelper;
+            throw new BadRequestRestException("Invalid credentials");
         }
-
-        public async Task<AuthorizedResponseV1> RegisterAsync(RegisterRequestV1 request)
-        {
-            if (await _context.Users.AnyAsync(user => user.Email == request.Email))
-            {
-                throw new BadRequestRestException("Invalid credentials");
-            }
             
-            User user = request.Adapt<User>();
-            user.UserName = await GenerateUniqueUserNameAsync(request.Email);
+        User user = request.Adapt<User>();
+        user.UserName = await GenerateUniqueUserNameAsync(request.Email);
             
-            IdentityResult createNewUserResult = await _userManager.CreateAsync(user, request.Password);
+        IdentityResult createNewUserResult = await _userManager.CreateAsync(user, request.Password);
 
-            if (!createNewUserResult.Succeeded)
-            {
-                throw new BadRequestRestException("Invalid credentials");
-            }
-
-            await _userManager.AddToRoleAsync(user, Env.Roles.USER);
-
-            return await GenerateAuthorizedResponse(user, Env.TokenExpirationTime.OneDay);
+        if (!createNewUserResult.Succeeded)
+        {
+            throw new BadRequestRestException("Invalid credentials");
         }
 
-        public async Task<AuthorizedResponseV1> LoginAsync(LoginRequestV1 requestV1)
+        await _userManager.AddToRoleAsync(user, Env.Roles.USER);
+
+        return await GenerateAuthorizedResponse(user, Env.TokenExpirationTime.OneDay);
+    }
+
+    public async Task<AuthorizedResponseV1> LoginAsync(LoginRequestV1 requestV1)
+    {
+        User user = await _userManager.FindByEmailAsync(requestV1.Email);
+
+        if (user is null)
         {
-            User user = await _userManager.FindByEmailAsync(requestV1.Email);
+            throw new BadRequestRestException("Invalid credentials");
+        }
 
-            if (user is null)
-            {
-                throw new BadRequestRestException("Invalid credentials");
-            }
+        bool passwordValid = await _userManager.CheckPasswordAsync(user, requestV1.Password);
 
-            bool passwordValid = await _userManager.CheckPasswordAsync(user, requestV1.Password);
+        if (!passwordValid)
+        {
+            throw new BadRequestRestException("Invalid credentials");
+        }
 
-            if (!passwordValid)
-            {
-                throw new BadRequestRestException("Invalid credentials");
-            }
+        TimeSpan tokenDuration = Env.TokenExpirationTime.OneDay;
 
-            TimeSpan tokenDuration = Env.TokenExpirationTime.OneDay;
-
-            if (requestV1.Remember)
-            {
-                tokenDuration = Env.TokenExpirationTime.SevenDays;
-            }
+        if (requestV1.Remember)
+        {
+            tokenDuration = Env.TokenExpirationTime.SevenDays;
+        }
             
-            return await GenerateAuthorizedResponse(user, tokenDuration);
+        return await GenerateAuthorizedResponse(user, tokenDuration);
+    }
+
+    public async Task<UserDto> GetUserAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            throw new BadRequestRestException("User was not found");
         }
 
-        public async Task<UserDto> GetUserAsync(string userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
+        return user.Adapt<UserDto>();
+    }
 
-            if (user is null)
-            {
-                throw new BadRequestRestException("User was not found");
-            }
+    private async Task<AuthorizedResponseV1> GenerateAuthorizedResponse(User user, TimeSpan tokenLifetime)
+    {
+        string roles = string.Join(",", await _userManager.GetRolesAsync(user));
 
-            return user.Adapt<UserDto>();
-        }
-
-        private async Task<AuthorizedResponseV1> GenerateAuthorizedResponse(User user, TimeSpan tokenLifetime)
-        {
-            string roles = string.Join(",", await _userManager.GetRolesAsync(user));
-
-            string token = _jwtHelper.GenerateToken(user.Id.ToString(), roles, tokenLifetime);
+        string token = _jwtHelper.GenerateToken(user.Id.ToString(), roles, tokenLifetime);
             
-            return new AuthorizedResponseV1
-            {
-                Token = token,
-                User = user.Adapt<UserDto>()
-            };
-        }
+        return new AuthorizedResponseV1
+        {
+            Token = token,
+            User = user.Adapt<UserDto>()
+        };
+    }
         
-        private static readonly Regex Regex = new ("@[a-z]*.[a-z]*");
+    private static readonly Regex Regex = new ("@[a-z]*.[a-z]*");
         
-        private async Task<string> GenerateUniqueUserNameAsync(string email)
-        {
-            const string symbols = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
+    private async Task<string> GenerateUniqueUserNameAsync(string email)
+    {
+        const string symbols = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
 
-            string newUserName = Regex.Replace(email, "");
+        string newUserName = Regex.Replace(email, "");
 
-            var rand = new Random(DateTime.Now.Millisecond);
+        var rand = new Random(DateTime.Now.Millisecond);
             
-            while (true)
+        while (true)
+        {
+            if (!await _context.Users.AnyAsync(user => user.UserName == newUserName))
             {
-                if (!await _context.Users.AnyAsync(user => user.UserName == newUserName))
-                {
-                    break;
-                }
+                break;
+            }
                 
-                int index = rand.Next(symbols.Length);
-                newUserName += symbols[index];
-            }
-            
-            return newUserName;
+            int index = rand.Next(symbols.Length);
+            newUserName += symbols[index];
         }
+            
+        return newUserName;
     }
 }

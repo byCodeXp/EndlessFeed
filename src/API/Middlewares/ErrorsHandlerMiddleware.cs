@@ -6,52 +6,51 @@ using API.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace API.Middlewares
+namespace API.Middlewares;
+
+public class ErrorsHandlerMiddleware
 {
-    public class ErrorsHandlerMiddleware
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ErrorsHandlerMiddleware> _logger;
+
+    public ErrorsHandlerMiddleware(RequestDelegate next, ILogger<ErrorsHandlerMiddleware> logger)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ErrorsHandlerMiddleware> _logger;
+        _next = next;
+        _logger = logger;
+    }
 
-        public ErrorsHandlerMiddleware(RequestDelegate next, ILogger<ErrorsHandlerMiddleware> logger)
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
         {
-            _next = next;
-            _logger = logger;
+            await _next.Invoke(context);
         }
-
-        public async Task InvokeAsync(HttpContext context)
+        catch (Exception exception)
         {
-            try
-            {
-                await _next.Invoke(context);
-            }
-            catch (Exception exception)
-            {
-                string message = null;
+            string message = null;
                 
-                HttpResponse response = context.Response;
-                response.ContentType = "application/json";
+            HttpResponse response = context.Response;
+            response.ContentType = "application/json";
                 
-                switch (exception)
-                {
-                    case BadRequestRestException:
-                        response.StatusCode = (int) HttpStatusCode.BadRequest;
-                        message = exception.Message;
-                        break;
-                    default:
-                        response.StatusCode = (int) HttpStatusCode.InternalServerError;
-                        message = "Internal Server Error";
-                        break;
-                }
-
-                _logger.LogError(exception.ToString());
-
-                await response.WriteAsync(new FailedResponseV1
-                {
-                    Code = response.StatusCode,
-                    Message = message
-                }.ToString());
+            switch (exception)
+            {
+                case BadRequestRestException:
+                    response.StatusCode = (int) HttpStatusCode.BadRequest;
+                    message = exception.Message;
+                    break;
+                default:
+                    response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                    message = "Internal Server Error";
+                    break;
             }
+
+            _logger.LogError(exception.ToString());
+
+            await response.WriteAsync(new FailedResponseV1
+            {
+                Code = response.StatusCode,
+                Message = message
+            }.ToString());
         }
     }
 }
