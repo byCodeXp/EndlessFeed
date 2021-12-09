@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts.Requests.v1;
@@ -8,7 +7,6 @@ using API.Exceptions;
 using DAL;
 using DAL.Entities;
 using Mapster;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.v1;
 
@@ -19,30 +17,6 @@ public class CommentsServiceV1
     public CommentsServiceV1(DataContext context)
     {
         _context = context;
-    }
-
-    public async Task<IEnumerable<CommentDto>> GetCommentsFromPostAsync(Guid postId)
-    {
-        Post post = await _context.Posts.Include(c => c.Comments).FirstOrDefaultAsync(m => m.Id == postId);
-
-        if (post is null)
-        {
-            throw new BadRequestRestException("Post does not exists");
-        }
-
-        return post.Comments.Adapt<IEnumerable<CommentDto>>();
-    }
-
-    public async Task<IEnumerable<CommentDto>> GetCommentsFromUserAsync(Guid userId)
-    {
-        User user = await _context.Users.Include(c => c.Comments).FirstOrDefaultAsync(m => m.Id == userId);
-
-        if (user is null)
-        {
-            throw new BadRequestRestException("User does not exists");
-        }
-
-        return user.Comments.Adapt<IEnumerable<CommentDto>>();
     }
         
     public async Task<CommentDto> CreateCommentAsync(CreateCommentRequestV1 request, Guid userId)

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers.v1;
 
 [ApiVersion("1.0")]
-[Authorize(Roles = Env.Roles.ALL)]
+[Authorize(Roles = Env.Roles.USER)]
 public class CommentsController : ApiController
 {
     private readonly CommentsServiceV1 _commentsService;

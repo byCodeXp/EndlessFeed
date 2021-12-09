@@ -2,9 +2,10 @@
 
 namespace API.Dtos;
 
-public class PostDto
+public record PublishDto
 {
     public Guid Id { get; set; }
     public string Text { get; set; }
     public UserDto Author { get; set; }
-}
+    public DateTime PublishedAt { get; set; }
+};

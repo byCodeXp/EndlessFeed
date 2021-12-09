@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using API.Contracts.Requests.v1;
 using API.Controllers.Base;
-using API.Dtos;
 using API.Extensions;
 using API.Services.v1;
 using Microsoft.AspNetCore.Authorization;
@@ -12,40 +10,31 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers.v1;
 
 [ApiVersion("1.0")]
-[Authorize(Roles = Env.Roles.ALL)]
 public class PostsController : ApiController
 {
     private readonly PostsServiceV1 _postsService;
-    private readonly CommentsServiceV1 _commentsService;
 
-    public PostsController(PostsServiceV1 postsService, CommentsServiceV1 commentsService)
+    public PostsController(PostsServiceV1 postsService)
     {
         _postsService = postsService;
-        _commentsService = commentsService;
     }
 
     [HttpGet("{perPage}/{page}")]
-    [AllowAnonymous]
-    public IActionResult Get([FromRoute] GetPublishesRequestV1 request)
+    public IActionResult Get([FromRoute] GetPostsRequestV1 request)
     {
-        return Ok(_postsService.GetPublishedPosts(request));
+        return Ok(_postsService.GetPosts(request));
     }
 
-    [HttpGet("{postId}/comments")]
-    [AllowAnonymous]
-    public async Task<IEnumerable<CommentDto>> GetCommentsFromPost(Guid postId)
-    {
-        return await _commentsService.GetCommentsFromPostAsync(postId);
-    }
-
-    [HttpGet("top")]
-    public async Task<IActionResult> Top()
+    [HttpGet("current")]
+    [Authorize(Roles = Env.Roles.USER)]
+    public async Task<IActionResult> Current()
     {
         string userId = HttpContext.GetUserIdFromClaims();
-        return Ok(await _postsService.GetTopPostAsync(Guid.Parse(userId)));
+        return Ok(await _postsService.GetCurrentPostAsync(Guid.Parse(userId)));
     }
 
     [HttpPost("create")]
+    [Authorize(Roles = Env.Roles.USER)]
     public async Task<IActionResult> Create([FromBody] CreatePostRequestV1 requestV1)
     {
         string userId = HttpContext.GetUserIdFromClaims();
@@ -53,6 +42,7 @@ public class PostsController : ApiController
     }
 
     [HttpPut("update")]
+    [Authorize(Roles = Env.Roles.USER)]
     public async Task<IActionResult> Update(UpdatePostRequestV1 request)
     {
         string userId = HttpContext.GetUserIdFromClaims();
@@ -61,6 +51,7 @@ public class PostsController : ApiController
     }
 
     [HttpDelete("delete/{postId}")]
+    [Authorize(Roles = Env.Roles.USER)]
     public async Task<IActionResult> Delete(Guid postId)
     {
         string userId = HttpContext.GetUserIdFromClaims();

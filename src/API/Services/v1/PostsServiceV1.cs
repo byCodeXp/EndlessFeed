@@ -23,22 +23,60 @@ public class PostsServiceV1
 
     private int CalculateOffset(int page, int perPage) => page <= 0 ? 1 : page * perPage - perPage;
         
-    public IEnumerable<PostDto> GetPublishedPosts(GetPublishesRequestV1 request)
+    public IEnumerable<PostDto> GetPublishedPosts(GetPostsRequestV1 request)
     {
         int skip = CalculateOffset(request.Page, request.PerPage);
         int take = request.PerPage;
-            
-        IEnumerable<Post> posts = _context.Publishes
+
+        IEnumerable<PostDto> posts = _context.Publishes
             .Include(publish => publish.Post)
+            .ThenInclude(post => post.Author)
             .OrderByDescending(publish => publish.CreatedTimeStamp)
             .Skip(skip)
             .Take(take)
-            .Select(publish => publish.Post);
+            .Select(publish => publish.Post)
+            .ProjectToType<PostDto>();
 
-        return posts.Adapt<IEnumerable<PostDto>>();
+        return posts;
+    }
+    
+    public IEnumerable<PostDto> GetPosts(GetPostsRequestV1 request)
+    {
+        int skip = CalculateOffset(request.Page, request.PerPage);
+        int take = request.PerPage;
+
+        IEnumerable<PostDto> posts = _context.Posts
+            .Include(post => post.Author)
+            .OrderByDescending(post => post.CreatedTimeStamp)
+            .Skip(skip)
+            .Take(take)
+            .ProjectToType<PostDto>();
+        
+        return posts;
     }
 
-    public async Task<PostDto> GetTopPostAsync(Guid userId)
+    public async Task<IEnumerable<CommentDto>> GetPublishedPostComments(Guid publishId)
+    {
+        var publish = await _context.Publishes.FindAsync(publishId);
+
+        if (publish is null)
+        {
+            throw new BadRequestRestException("Publish does not exists");
+        }
+        
+        var post = await _context.Posts.FindAsync(publish.PostId);
+
+        if (post is null)
+        {
+            throw new BadRequestRestException("Post does not exists");
+        }
+
+        await _context.Entry(post).Collection(post => post.Comments).LoadAsync();
+
+        return post.Comments.Adapt<IEnumerable<CommentDto>>();
+    }
+    
+    public async Task<PostDto> GetCurrentPostAsync(Guid userId)
     {
         User user = await _context.Users.FindAsync(userId);
 
@@ -56,7 +94,7 @@ public class PostsServiceV1
             
         return post.Adapt<PostDto>();
     }
-        
+    
     public async Task<PostDto> CreateAsync(Guid userId, CreatePostRequestV1 request)
     {
         User user = await _context.Users.FindAsync(userId);
