@@ -4,33 +4,32 @@ using System.Threading.Tasks;
 using API.Contracts.Requests.v1;
 using API.Dtos;
 using API.Exceptions;
+using API.Services.Base;
 using DAL;
 using DAL.Entities;
 using Mapster;
 
 namespace API.Services.v1;
 
-public class CommentsServiceV1
+public class CommentsServiceV1 : Service
 {
-    private readonly DataContext _context;
-
     public CommentsServiceV1(DataContext context)
     {
-        _context = context;
+        Context = context;
     }
-        
+    
     public async Task<CommentDto> CreateCommentAsync(CreateCommentRequestV1 request, Guid userId)
     {
         // TODO: check if post published then create comment
             
-        User user = await _context.Users.FindAsync(userId);
+        User user = await Context.Users.FindAsync(userId);
 
         if (user is null)
         {
             throw new BadRequestRestException("User does not exists");
         }
 
-        await _context.Entry(user).Collection(c => c.Posts).LoadAsync();
+        await Context.Entry(user).Collection(c => c.Posts).LoadAsync();
 
         var post = user.Posts.FirstOrDefault(m => m.Id == request.PostId);
 
@@ -46,9 +45,9 @@ public class CommentsServiceV1
             Author = user
         };
 
-        await _context.Comments.AddAsync(comment);
+        await Context.Comments.AddAsync(comment);
 
-        await _context.SaveChangesAsync();
+        await Context.SaveChangesAsync();
 
         return comment.Adapt<CommentDto>();
     }
@@ -57,14 +56,14 @@ public class CommentsServiceV1
     {
         // TODO: check if post published then create comment
             
-        User user = await _context.Users.FindAsync(userId);
+        User user = await Context.Users.FindAsync(userId);
 
         if (user is null)
         {
             throw new BadRequestRestException("User does not exists");
         }
             
-        await _context.Entry(user).Collection(c => c.Comments).LoadAsync();
+        await Context.Entry(user).Collection(c => c.Comments).LoadAsync();
             
         var comment = user.Comments.FirstOrDefault(m => m.Id == request.CommentId);
 
@@ -75,21 +74,21 @@ public class CommentsServiceV1
 
         comment.Text = request.Text;
             
-        await _context.SaveChangesAsync();
+        await Context.SaveChangesAsync();
     }
 
     public async Task DeleteCommentAsync(Guid commentId, Guid userId)
     {
         // TODO: check if post published then create comment
             
-        User user = await _context.Users.FindAsync(userId);
+        User user = await Context.Users.FindAsync(userId);
 
         if (user is null)
         {
             throw new BadRequestRestException("User does not exists");
         }
             
-        await _context.Entry(user).Collection(c => c.Comments).LoadAsync();
+        await Context.Entry(user).Collection(c => c.Comments).LoadAsync();
             
         var comment = user.Comments.FirstOrDefault(m => m.Id == commentId);
 
@@ -98,8 +97,8 @@ public class CommentsServiceV1
             throw new BadRequestRestException("Comment does not exists");
         }
 
-        _context.Remove(comment);
+        Context.Remove(comment);
             
-        await _context.SaveChangesAsync();
+        await Context.SaveChangesAsync();
     }
 }

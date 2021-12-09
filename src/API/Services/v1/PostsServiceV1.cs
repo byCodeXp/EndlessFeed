@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using API.Contracts.Requests.v1;
 using API.Dtos;
 using API.Exceptions;
+using API.Services.Base;
 using DAL;
 using DAL.Entities;
 using Mapster;
@@ -12,13 +13,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.v1;
 
-public class PostsServiceV1
+public class PostsServiceV1 : Service
 {
-    private readonly DataContext _context;
-
     public PostsServiceV1(DataContext context)
     {
-        _context = context;
+        Context = context;
     }
 
     private int CalculateOffset(int page, int perPage) => page <= 0 ? 1 : page * perPage - perPage;
@@ -28,7 +27,7 @@ public class PostsServiceV1
         int skip = CalculateOffset(request.Page, request.PerPage);
         int take = request.PerPage;
 
-        IEnumerable<PostDto> posts = _context.Publishes
+        IEnumerable<PostDto> posts = Context.Publishes
             .Include(publish => publish.Post)
             .ThenInclude(post => post.Author)
             .OrderByDescending(publish => publish.CreatedTimeStamp)
@@ -45,7 +44,7 @@ public class PostsServiceV1
         int skip = CalculateOffset(request.Page, request.PerPage);
         int take = request.PerPage;
 
-        IEnumerable<PostDto> posts = _context.Posts
+        IEnumerable<PostDto> posts = Context.Posts
             .Include(post => post.Author)
             .OrderByDescending(post => post.CreatedTimeStamp)
             .Skip(skip)
@@ -57,35 +56,35 @@ public class PostsServiceV1
 
     public async Task<IEnumerable<CommentDto>> GetPublishedPostComments(Guid publishId)
     {
-        var publish = await _context.Publishes.FindAsync(publishId);
+        var publish = await Context.Publishes.FindAsync(publishId);
 
         if (publish is null)
         {
             throw new BadRequestRestException("Publish does not exists");
         }
         
-        var post = await _context.Posts.FindAsync(publish.PostId);
+        var post = await Context.Posts.FindAsync(publish.PostId);
 
         if (post is null)
         {
             throw new BadRequestRestException("Post does not exists");
         }
 
-        await _context.Entry(post).Collection(post => post.Comments).LoadAsync();
+        await Context.Entry(post).Collection(post => post.Comments).LoadAsync();
 
         return post.Comments.Adapt<IEnumerable<CommentDto>>();
     }
     
     public async Task<PostDto> GetCurrentPostAsync(Guid userId)
     {
-        User user = await _context.Users.FindAsync(userId);
+        User user = await Context.Users.FindAsync(userId);
 
         if (user is null)
         {
             throw new BadRequestRestException("User does not exists");
         }
 
-        var post = await _context.Posts.OrderBy(post => post.CreatedTimeStamp).LastOrDefaultAsync();
+        var post = await Context.Posts.OrderBy(post => post.CreatedTimeStamp).LastOrDefaultAsync();
 
         if (post is null)
         {
@@ -97,7 +96,7 @@ public class PostsServiceV1
     
     public async Task<PostDto> CreateAsync(Guid userId, CreatePostRequestV1 request)
     {
-        User user = await _context.Users.FindAsync(userId);
+        User user = await Context.Users.FindAsync(userId);
 
         if (user is null)
         {
@@ -110,23 +109,23 @@ public class PostsServiceV1
             Author = user
         };
             
-        await _context.Posts.AddAsync(post);
+        await Context.Posts.AddAsync(post);
             
-        await _context.SaveChangesAsync();
+        await Context.SaveChangesAsync();
 
         return post.Adapt<PostDto>();
     }
 
     public async Task UpdateAsync(Guid userId, UpdatePostRequestV1 request)
     {
-        User user = await _context.Users.FindAsync(userId);
+        User user = await Context.Users.FindAsync(userId);
 
         if (user is null)
         {
             throw new BadRequestRestException("User does not exists");
         }
 
-        await _context.Entry(user).Collection(u => u.Posts).LoadAsync();
+        await Context.Entry(user).Collection(u => u.Posts).LoadAsync();
             
         var post = user.Posts.FirstOrDefault(post => post.Id == request.Id);
 
@@ -137,19 +136,19 @@ public class PostsServiceV1
 
         post.Text = request.Text;
             
-        await _context.SaveChangesAsync();
+        await Context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid userId, Guid postId)
     {
-        User user = await _context.Users.FindAsync(userId);
+        User user = await Context.Users.FindAsync(userId);
 
         if (user is null)
         {
             throw new BadRequestRestException("User does not exists");
         }
             
-        await _context.Entry(user).Collection(u => u.Posts).LoadAsync();
+        await Context.Entry(user).Collection(u => u.Posts).LoadAsync();
             
         var post = user.Posts.FirstOrDefault(post => post.Id == postId);
 
@@ -163,14 +162,14 @@ public class PostsServiceV1
             throw new BadRequestRestException("Post does not exists");
         }
             
-        _context.Posts.Remove(post);
+        Context.Posts.Remove(post);
             
-        await _context.SaveChangesAsync();
+        await Context.SaveChangesAsync();
     }
 
     public async Task PublishAsync(Guid postId)
     {
-        Post post = await _context.Posts.FindAsync(postId);
+        Post post = await Context.Posts.FindAsync(postId);
             
         if (post is null)
         {
@@ -182,8 +181,8 @@ public class PostsServiceV1
             Post = post
         };
 
-        await _context.AddAsync(publish);
+        await Context.AddAsync(publish);
 
-        await _context.SaveChangesAsync();
+        await Context.SaveChangesAsync();
     }
 }

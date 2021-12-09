@@ -6,6 +6,7 @@ using API.Contracts.Responses.v1;
 using API.Dtos;
 using API.Exceptions;
 using API.Helpers;
+using API.Services.Base;
 using DAL;
 using DAL.Entities;
 using Mapster;
@@ -14,22 +15,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.v1;
 
-public class IdentityServiceV1
+public class IdentityServiceV1 : Service
 {
     private readonly UserManager<User> _userManager;
-    private readonly DataContext _context;
     private readonly JwtHelper _jwtHelper;
 
     public IdentityServiceV1(UserManager<User> userManager, DataContext context, JwtHelper jwtHelper)
     {
+        Context = context;
         _userManager = userManager;
-        _context = context;
         _jwtHelper = jwtHelper;
     }
 
     public async Task<AuthorizedResponseV1> RegisterAsync(RegisterRequestV1 request)
     {
-        if (await _context.Users.AnyAsync(user => user.Email == request.Email))
+        if (await Context.Users.AnyAsync(user => user.Email == request.Email))
         {
             throw new BadRequestRestException("Invalid credentials");
         }
@@ -112,7 +112,7 @@ public class IdentityServiceV1
             
         while (true)
         {
-            if (!await _context.Users.AnyAsync(user => user.UserName == newUserName))
+            if (!await Context.Users.AnyAsync(user => user.UserName == newUserName))
             {
                 break;
             }
