@@ -27,17 +27,17 @@ namespace API.Services.v1
             _jwtHelper = jwtHelper;
         }
 
-        public async Task<AuthorizedResponseV1> RegisterAsync(RegisterRequestV1 requestV1)
+        public async Task<AuthorizedResponseV1> RegisterAsync(RegisterRequestV1 request)
         {
-            if (await _context.Users.AnyAsync(user => user.Email == requestV1.Email))
+            if (await _context.Users.AnyAsync(user => user.Email == request.Email))
             {
                 throw new BadRequestRestException("Invalid credentials");
             }
             
-            User user = requestV1.Adapt<User>();
-            user.UserName = await GenerateUniqueUserNameAsync(requestV1.Email);
+            User user = request.Adapt<User>();
+            user.UserName = await GenerateUniqueUserNameAsync(request.Email);
             
-            IdentityResult createNewUserResult = await _userManager.CreateAsync(user, requestV1.Password);
+            IdentityResult createNewUserResult = await _userManager.CreateAsync(user, request.Password);
 
             if (!createNewUserResult.Succeeded)
             {

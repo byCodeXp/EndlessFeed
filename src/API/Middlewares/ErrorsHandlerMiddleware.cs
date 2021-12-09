@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using API.Contracts.Responses.v1;
 using API.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -45,7 +46,7 @@ namespace API.Middlewares
 
                 _logger.LogError(exception.ToString());
 
-                await response.WriteAsync(new FailedResponse
+                await response.WriteAsync(new FailedResponseV1
                 {
                     Code = response.StatusCode,
                     Message = message

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using API.Attributes;
 using API.Contracts.Requests.v1;
+using API.Controllers.Base;
 using API.Dtos;
 using API.Extensions;
 using API.Services.v1;
@@ -10,36 +10,36 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.v1
 {
-    [ExtendedRoute("comments", 1)]
+    [ApiVersion("1.0")]
     [Authorize(Roles = Env.Roles.ALL)]
-    public class CommentsControllerV1 : ApiController
+    public class CommentsController : ApiController
     {
-        private readonly CommentsServiceV1 _commentsServiceV1;
+        private readonly CommentsServiceV1 _commentsService;
 
-        public CommentsControllerV1(CommentsServiceV1 commentsServiceV1)
+        public CommentsController(CommentsServiceV1 commentsService)
         {
-            _commentsServiceV1 = commentsServiceV1;
+            _commentsService = commentsService;
         }
         
         [HttpPost("create")]
-        public async Task<CommentDto> Create([FromBody] CreateCommentRequestV1 requestV1)
+        public async Task<CommentDto> Create([FromBody] CreateCommentRequestV1 request)
         {
             string userId = HttpContext.GetUserIdFromClaims();
-            return await _commentsServiceV1.CreateCommentAsync(requestV1, Guid.Parse(userId));
+            return await _commentsService.CreateCommentAsync(request, Guid.Parse(userId));
         }
         
         [HttpPut("update")]
-        public async Task Update([FromBody] UpdateCommentRequestV1 requestV1)
+        public async Task Update([FromBody] UpdateCommentRequestV1 request)
         {
             string userId = HttpContext.GetUserIdFromClaims();
-            await _commentsServiceV1.UpdateCommentAsync(requestV1, Guid.Parse(userId));
+            await _commentsService.UpdateCommentAsync(request, Guid.Parse(userId));
         }
         
         [HttpDelete("delete/{commentId}")]
         public async Task Update([FromRoute] Guid commentId)
         {
             string userId = HttpContext.GetUserIdFromClaims();
-            await _commentsServiceV1.DeleteCommentAsync(commentId, Guid.Parse(userId));
+            await _commentsService.DeleteCommentAsync(commentId, Guid.Parse(userId));
         }
     }
 }

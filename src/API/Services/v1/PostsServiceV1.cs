@@ -23,10 +23,10 @@ namespace API.Services.v1
 
         private int CalculateOffset(int page, int perPage) => page <= 0 ? 1 : page * perPage - perPage;
         
-        public IEnumerable<PostDto> GetPublishedPosts(GetPublishesRequestV1 requestV1)
+        public IEnumerable<PostDto> GetPublishedPosts(GetPublishesRequestV1 request)
         {
-            int skip = CalculateOffset(requestV1.Page, requestV1.PerPage);
-            int take = requestV1.PerPage;
+            int skip = CalculateOffset(request.Page, request.PerPage);
+            int take = request.PerPage;
             
             IEnumerable<Post> posts = _context.Publishes
                 .Include(publish => publish.Post)
@@ -57,7 +57,7 @@ namespace API.Services.v1
             return post.Adapt<PostDto>();
         }
         
-        public async Task<PostDto> CreateAsync(Guid userId, CreatePostRequestV1 requestV1)
+        public async Task<PostDto> CreateAsync(Guid userId, CreatePostRequestV1 request)
         {
             User user = await _context.Users.FindAsync(userId);
 
@@ -68,7 +68,7 @@ namespace API.Services.v1
             
             var post = new Post
             {
-                Text = requestV1.Text,
+                Text = request.Text,
                 Author = user
             };
             
@@ -79,7 +79,7 @@ namespace API.Services.v1
             return post.Adapt<PostDto>();
         }
 
-        public async Task UpdateAsync(Guid userId, UpdatePostRequestV1 requestV1)
+        public async Task UpdateAsync(Guid userId, UpdatePostRequestV1 request)
         {
             User user = await _context.Users.FindAsync(userId);
 
@@ -90,14 +90,14 @@ namespace API.Services.v1
 
             await _context.Entry(user).Collection(u => u.Posts).LoadAsync();
             
-            var post = user.Posts.FirstOrDefault(post => post.Id == requestV1.Id);
+            var post = user.Posts.FirstOrDefault(post => post.Id == request.Id);
 
             if (post is null)
             {
                 throw new BadRequestRestException("Post does not exists");
             }
 
-            post.Text = requestV1.Text;
+            post.Text = request.Text;
             
             await _context.SaveChangesAsync();
         }

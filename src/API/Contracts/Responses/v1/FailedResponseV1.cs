@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 
-namespace API
+namespace API.Contracts.Responses.v1
 {
-    public class FailedResponse
+    public class FailedResponseV1
     {
         public int Code { get; set; }
         public string Message { get; set; }

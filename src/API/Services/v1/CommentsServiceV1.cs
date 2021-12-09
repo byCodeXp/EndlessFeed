@@ -45,7 +45,7 @@ namespace API.Services.v1
             return user.Comments.Adapt<IEnumerable<CommentDto>>();
         }
         
-        public async Task<CommentDto> CreateCommentAsync(CreateCommentRequestV1 requestV1, Guid userId)
+        public async Task<CommentDto> CreateCommentAsync(CreateCommentRequestV1 request, Guid userId)
         {
             // TODO: check if post published then create comment
             
@@ -58,7 +58,7 @@ namespace API.Services.v1
 
             await _context.Entry(user).Collection(c => c.Posts).LoadAsync();
 
-            var post = user.Posts.FirstOrDefault(m => m.Id == requestV1.PostId);
+            var post = user.Posts.FirstOrDefault(m => m.Id == request.PostId);
 
             if (post is null)
             {
@@ -67,7 +67,7 @@ namespace API.Services.v1
             
             var comment = new Comment
             {
-                Text = requestV1.Text,
+                Text = request.Text,
                 Post = post,
                 Author = user
             };
@@ -79,7 +79,7 @@ namespace API.Services.v1
             return comment.Adapt<CommentDto>();
         }
 
-        public async Task UpdateCommentAsync(UpdateCommentRequestV1 requestV1, Guid userId)
+        public async Task UpdateCommentAsync(UpdateCommentRequestV1 request, Guid userId)
         {
             // TODO: check if post published then create comment
             
@@ -92,14 +92,14 @@ namespace API.Services.v1
             
             await _context.Entry(user).Collection(c => c.Comments).LoadAsync();
             
-            var comment = user.Comments.FirstOrDefault(m => m.Id == requestV1.CommentId);
+            var comment = user.Comments.FirstOrDefault(m => m.Id == request.CommentId);
 
             if (comment is null)
             {
                 throw new BadRequestRestException("Comment does not exists");
             }
 
-            comment.Text = requestV1.Text;
+            comment.Text = request.Text;
             
             await _context.SaveChangesAsync();
         }
