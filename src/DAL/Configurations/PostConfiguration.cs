@@ -25,5 +25,11 @@ public class PostConfiguration : EntityConfiguration<Post>
             .HasOne(post => post.Publish)
             .WithOne(publish => publish.Post)
             .HasForeignKey<Publish>(publish => publish.PostId);
+        
+        // Relationship one to one
+        builder
+            .HasOne(post => post.BlockPost)
+            .WithOne(blockPost => blockPost.Post)
+            .HasForeignKey<BlockPost>(blockPost => blockPost.PostId);
     }
 }

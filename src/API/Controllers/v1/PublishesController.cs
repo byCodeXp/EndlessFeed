@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 using API.Contracts.Requests.v1;
 using API.Controllers.Base;
 using API.Services.v1;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.v1;
@@ -26,5 +28,12 @@ public class PublishesController : ApiController
     public IActionResult Comments([FromRoute] Guid publishId)
     {
         return Ok(_postsService.GetPublishedPostComments(publishId));
+    }
+
+    [Authorize(Roles = Env.Roles.ADMIN)]
+    [HttpPost("{publishId}/block")]
+    public async Task<IActionResult> BlockPublish(Guid publishId)
+    {
+        return Ok();
     }
 }

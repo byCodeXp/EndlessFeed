@@ -20,11 +20,13 @@ public class DataContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
         builder.ApplyConfiguration(new PostConfiguration());
         builder.ApplyConfiguration(new PublishConfiguration());
         builder.ApplyConfiguration(new CommentConfiguration());
+        builder.ApplyConfiguration(new BlockPostConfiguration());
             
         base.OnModelCreating(builder);
     }
         
     public DbSet<Post> Posts { get; set; }
+    public DbSet<BlockPost> BlockedPosts { get; set; }
     public DbSet<Publish> Publishes { get; set; }
     public DbSet<Comment> Comments { get; set; }
 }
