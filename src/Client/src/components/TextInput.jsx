@@ -20,7 +20,7 @@ export const TextInput = ({ onFinish }) => {
     }
 
     return (
-        <div className="flex mt-4 gap-3">
+        <div className="flex gap-3">
             <div className="relative flex-1">
                 <div ref={textRef} onKeyUp={handleChange} className="absolute overflow-auto shadow bg-white py-4 rounded-lg px-8 outline-none w-full" contentEditable />
                 <span hidden={visible} className="pointer-events-none absolute py-4 px-8 text-gray-400">Type message here</span>
