@@ -1,9 +1,17 @@
 import React from 'react';
+import { TextInput } from "./components/TextInput";
 
 export const App = () => {
-   return (
-       <div className="w-full h-full flex">
-           <h1 className="text-gray-400 text-9xl m-auto">1984</h1>
-       </div>
-   );
+
+    const handleFinish = (text) => {
+        console.log(text);
+    }
+
+    return (
+        <div className="bg-gray-300 h-full flex justify-center">
+            <div style={{width: 640}}>
+                <TextInput onFinish={handleFinish} />
+            </div>
+        </div>
+    );
 };
