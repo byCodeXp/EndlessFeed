@@ -2,12 +2,20 @@
   "scripts": {
     "start": "webpack serve"
   },
+  "prettier": {
+    "bracketSpacing": true,
+    "singleQuote": true,
+    "endOfLine": "crlf",
+    "tabWidth": 3,
+    "semi": true
+  },
   "devDependencies": {
     "autoprefixer": "^10.4.0",
     "css-loader": "^6.5.1",
     "html-webpack-plugin": "^5.5.0",
     "postcss": "^8.4.5",
     "postcss-loader": "^6.2.1",
+    "prettier": "^2.5.1",
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.0.2",
     "webpack": "^5.65.0",
