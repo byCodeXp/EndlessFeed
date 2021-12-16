@@ -1,11 +1,25 @@
 import axios from "axios";
+import {tokenUtility} from "../utils/tokenUtility";
 
 const BASE_URL = 'https://localhost:5001/api/v1';
 
 function makeAxiosInstance(baseRoute) {
-    return axios.create({
+    const client = axios.create({
         baseURL: `${BASE_URL}/${baseRoute}`
     });
+
+    client.interceptors.request.use(
+        config => {
+            const token = tokenUtility.getBearerToken();
+            if (token) {
+                config.headers = { ...config.headers, Authorization: token }
+            }
+            return config;
+        },
+        error => Promise.reject(error)
+    );
+
+    return client;
 }
 
 class Client
