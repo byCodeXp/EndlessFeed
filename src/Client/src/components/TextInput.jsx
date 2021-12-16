@@ -1,21 +1,25 @@
 import React, { useRef, useState } from 'react';
 
-export const TextInput = ({ onFinish }) => {
-
+export const TextInput = ({ onFinish }) =>
+{
     const [visible, setVisible] = useState(false);
 
     const textRef = useRef();
 
-    const handleChange = () => {
-        if (textRef.current.textContent.length > 0) {
+    const handleChange = () =>
+    {
+        if (textRef.current.textContent.length > 0)
+        {
             setVisible(true)
         }
-        else {
+        else
+        {
             setVisible(false)
         }
     }
 
-    const handleClick = () => {
+    const handleClick = () =>
+    {
         onFinish(textRef.current.textContent);
     }
 
