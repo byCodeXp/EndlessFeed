@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { FormComponent } from './components/base/formComponent';
 import { PublishCard } from './components/publishCard';
+import {TextInputComponent} from "./components/base/textInputComponent";
 
 export const App = () => {
    const [auth, setAuth] = useState(false);
@@ -125,18 +126,10 @@ export const App = () => {
                   {formMode === 'login' && (
                      <FormComponent onFinish={handleFinishForm}>
                         <div className="mt-6">
-                           <input
-                              name="email"
-                              className="border w-64 outline-none bg-gray-100 shadow-inner rounded-lg p-2"
-                              placeholder="Email"
-                           />
+                           <TextInputComponent name="email" hint="Email" />
                         </div>
                         <div className="mt-6">
-                           <input
-                              name="password"
-                              className="border w-64 outline-none bg-gray-100 shadow-inner rounded-lg p-2"
-                              placeholder="Password"
-                           />
+                           <TextInputComponent name="password" hint="Password" />
                         </div>
                         <div className="mt-6">
                            <button className="w-64 bg-sky-400 shadow-lg transition-shadow hover:shadow text-white hover:bg-sky-500 p-2 rounded-lg">
@@ -148,25 +141,13 @@ export const App = () => {
                   {formMode === 'register' && (
                      <FormComponent onFinish={handleFinishForm}>
                         <div className="mt-6">
-                           <input
-                              name="name"
-                              className="border w-64 outline-none bg-gray-100 shadow-inner rounded-lg p-2"
-                              placeholder="Name"
-                           />
+                           <TextInputComponent name="name" hint="Name" />
                         </div>
                         <div className="mt-6">
-                           <input
-                              name="email"
-                              className="border w-64 outline-none bg-gray-100 shadow-inner rounded-lg p-2"
-                              placeholder="Email"
-                           />
+                           <TextInputComponent name="email" hint="Email" />
                         </div>
                         <div className="mt-6">
-                           <input
-                              name="password"
-                              className="border w-64 outline-none bg-gray-100 shadow-inner rounded-lg p-2"
-                              placeholder="Password"
-                           />
+                           <TextInputComponent name="password" hint="Password" />
                         </div>
                         <div className="mt-6">
                            <button className="w-64 bg-sky-400 shadow-lg transition-shadow hover:shadow text-white hover:bg-sky-500 p-2 rounded-lg">
