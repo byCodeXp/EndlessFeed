@@ -6,9 +6,9 @@ import { PublishEditor } from './components/publishEditor';
 import { AvatarComponent } from './components/base/avatarComponent';
 
 export const App = () => {
-   const [auth, setAuth] = useState(false);
+   const [auth, setAuth] = useState(true);
 
-   const [formMode, setFormMode] = useState('hidden');
+   const [formMode, setFormMode] = useState<'hidden' | 'login' | 'register'>('hidden');
 
    const handleClickSignIn = () => {
       setFormMode('login');
@@ -27,15 +27,19 @@ export const App = () => {
       }
    };
 
-   const formRef = useRef();
+   const formRef = useRef<HTMLDivElement>(null);
 
-   const handleClickOutsideForm = (event) => {
-      if (!formRef.current.contains(event.target)) {
-         setFormMode('hidden');
+   const handleClickOutsideForm = (event: React.MouseEvent<HTMLDivElement>) => {
+      // TODO: on mouse down inside form and release mouse button outside form is closed, fix it
+
+      if (event.target instanceof HTMLElement) {
+         if (!formRef.current?.contains(event.target)) {
+            setFormMode('hidden');
+         }
       }
    };
 
-   const handleFinishForm = (values) => {
+   const handleFinishForm = (values: { [key: string]: string }) => {
       setFormMode('hidden');
       setAuth(true);
    };
@@ -44,7 +48,9 @@ export const App = () => {
       setAuth(false);
    };
 
-   const handleSubmitEditor = (content) => {};
+   const handleSubmitEditor = (content: string) => {
+      console.log(content);
+   };
 
    return (
       <div className="min-h-full bg-gray-200">

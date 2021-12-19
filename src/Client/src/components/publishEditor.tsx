@@ -1,11 +1,24 @@
 import React, { useRef } from 'react';
 
-export const PublishEditor = ({ onFinish }) => {
-   const textAreaRef = useRef();
+interface PublishEditorProps {
+   onFinish: (content: string) => void;
+}
+
+export const PublishEditor = ({ onFinish } : PublishEditorProps) => {
+
+   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
    const handleClick = () => {
-      onFinish(textAreaRef.current.value);
+      const value = textAreaRef.current?.value;
+
+      if (value) {
+         onFinish(value);
+      }
    };
+
+   const handleInput = (event: React.FormEvent<HTMLTextAreaElement>) => {
+      (event.currentTarget.parentNode as HTMLLabelElement).dataset.value = event.currentTarget.value + " ";
+   }
 
    return (
       <div className="flex gap-3">
@@ -21,9 +34,7 @@ export const PublishEditor = ({ onFinish }) => {
                      placeholder="Type message here.."
                      rows={1}
                      maxLength={512}
-                     onInput={(e) => {
-                        e.target.parentNode.dataset.value = e.target.value + ' ';
-                     }}
+                     onInput={handleInput}
                   />
                </label>
             </div>

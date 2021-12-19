@@ -1,6 +1,6 @@
 module.exports = {
     mode: 'jit',
-    content: ["./src/**/*.{html,jsx}"],
+    content: ["./src/**/*.{html,tsx}"],
     theme: {
         extend: {
             gridTemplateColumns: {

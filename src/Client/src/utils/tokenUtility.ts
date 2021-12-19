@@ -12,7 +12,7 @@ const getBearerToken = () => {
     return null;
 }
 
-const setToken = (token) => {
+const setToken = (token: string) => {
     localStorage.setItem(TOKEN_ITEM_NAME, token);
 }
 

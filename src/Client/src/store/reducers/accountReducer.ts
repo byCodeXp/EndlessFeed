@@ -1,7 +1,12 @@
 const { createSlice } = require('@reduxjs/toolkit');
 
-const initialState = {
-   user: undefined,
+interface AccountState {
+   user: null;
+   status: 'idle' | 'loading' | 'success' | 'failed';
+}
+
+const initialState : AccountState = {
+   user: null,
    status: 'idle',
 };
 
