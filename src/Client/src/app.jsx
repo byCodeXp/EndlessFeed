@@ -3,6 +3,7 @@ import { FormComponent } from './components/base/formComponent';
 import { PublishCard } from './components/publishCard';
 import { TextInputComponent } from './components/base/textInputComponent';
 import { PublishEditor } from './components/publishEditor';
+import { AvatarComponent } from './components/base/avatarComponent';
 
 export const App = () => {
    const [auth, setAuth] = useState(false);
@@ -63,10 +64,7 @@ export const App = () => {
                <div className="col-span-12 md:col-span-2 lg:col-span-3 xl:col-span-4 h-14 flex flex-row-reverse items-center bg-blue-300 relative">
                   {auth ? (
                      <div className="relative group">
-                        <img
-                           className="w-10 h-10 object-cover rounded-full shadow"
-                           src="https://static.toiimg.com/thumb/61319212.cms?width=170&height=240"
-                        />
+                        <AvatarComponent src="https://static.toiimg.com/thumb/61319212.cms?width=170&height=240" />
                         <div className="transition opacity-0 -translate-y-1/2 scale-0 group-hover:scale-100 group-hover:translate-y-0 group-hover:opacity-100 absolute left-1/2 -translate-x-1/2 overflow-hidden">
                            <ul className="bg-white rounded-lg mt-4">
                               <li className="cursor-pointer w-24 py-1 text-center hover:bg-gray-100/50">Profile</li>
