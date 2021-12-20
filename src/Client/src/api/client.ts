@@ -33,11 +33,11 @@ class Client {
       return this.client.get<TResponse>(url);
    }
 
-   post<TResponse>(url: string, data?: Request) {
+   post<TResponse>(url: string, data?: ApiRequest) {
       return this.client.post<TResponse>(url, data);
    }
 
-   put<TResponse>(url: string, data?: Request) {
+   put<TResponse>(url: string, data?: ApiRequest) {
       return this.client.put<TResponse>(url, data);
    }
 

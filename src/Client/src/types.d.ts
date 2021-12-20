@@ -1,9 +1,12 @@
-interface Request {
+interface ApiRequest {
 
 }
 
 interface User {
+    id: string;
     name: string;
+    surname: string;
+    photo: string | null;
     userName: string;
 }
 

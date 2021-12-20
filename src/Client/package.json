@@ -11,6 +11,7 @@
     "printWidth": 128
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.16.5",
     "autoprefixer": "^10.4.0",
     "css-loader": "^6.5.1",
     "html-webpack-plugin": "^5.5.0",

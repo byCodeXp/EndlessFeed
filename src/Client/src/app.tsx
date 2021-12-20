@@ -1,12 +1,19 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FormComponent } from './components/base/formComponent';
 import { PublishCard } from './components/publishCard';
 import { TextInputComponent } from './components/base/textInputComponent';
 import { PublishEditor } from './components/publishEditor';
 import { AvatarComponent } from './components/base/avatarComponent';
+import { useAppDispatch, useAppSelector } from './store/hooks';
+import { loadUserAsyncAction, loginAsyncAction, registerAsyncAction } from './store/reducers/account/actions';
+import { LoginRequest, RegisterRequest } from './api/services/identityAPI';
+import { logoutAction } from './store/reducers/account';
+import { tokenUtility } from './utils/tokenUtility';
 
 export const App = () => {
-   const [auth, setAuth] = useState(true);
+   const dispatch = useAppDispatch();
+
+   const user = useAppSelector((state) => state.account.user);
 
    const [formMode, setFormMode] = useState<'hidden' | 'login' | 'register'>('hidden');
 
@@ -39,18 +46,45 @@ export const App = () => {
       }
    };
 
-   const handleFinishForm = (values: { [key: string]: string }) => {
-      setFormMode('hidden');
-      setAuth(true);
+   const handleLogin = (values: { [key: string]: string }) => {
+      if (values.email && values.password) {
+         const request: LoginRequest = {
+            email: values.email,
+            password: values.password,
+         };
+
+         dispatch(loginAsyncAction(request));
+      }
+   };
+
+   const handleRegister = (values: { [key: string]: string }) => {
+      if (values.name && values.email && values.password) {
+         const request: RegisterRequest = {
+            name: values.name,
+            email: values.email,
+            password: values.password,
+         };
+
+         dispatch(registerAsyncAction(request));
+      }
    };
 
    const handleClickLogout = () => {
-      setAuth(false);
+      dispatch(logoutAction());
+      tokenUtility.clearToken();
    };
 
    const handleSubmitEditor = (content: string) => {
       console.log(content);
    };
+
+   useEffect(() => {
+      dispatch(loadUserAsyncAction());
+   }, []);
+
+   useEffect(() => {
+      setFormMode('hidden');
+   }, [user]);
 
    return (
       <div className="min-h-full bg-gray-200">
@@ -68,7 +102,7 @@ export const App = () => {
                   </div>
                </div>
                <div className="col-span-6 order-2 md:order-3 md:col-span-2 lg:col-span-3 xl:col-span-4 h-14 flex flex-row-reverse items-center bg-blue-300 relative">
-                  {auth ? (
+                  {user ? (
                      <div className="relative group">
                         <AvatarComponent src="https://static.toiimg.com/thumb/61319212.cms?width=170&height=240" />
                         <div className="transition opacity-0 -translate-y-1/2 scale-0 group-hover:scale-100 group-hover:translate-y-0 group-hover:opacity-100 absolute left-1/2 -translate-x-1/2">
@@ -101,7 +135,7 @@ export const App = () => {
                      {formMode === 'register' && 'Creating new account'}
                   </div>
                   {formMode === 'login' && (
-                     <FormComponent onFinish={handleFinishForm}>
+                     <FormComponent onFinish={handleLogin}>
                         <div className="mt-6">
                            <TextInputComponent name="email" hint="Email" />
                         </div>
@@ -116,7 +150,7 @@ export const App = () => {
                      </FormComponent>
                   )}
                   {formMode === 'register' && (
-                     <FormComponent onFinish={handleFinishForm}>
+                     <FormComponent onFinish={handleRegister}>
                         <div className="mt-6">
                            <TextInputComponent name="name" hint="Name" />
                         </div>
