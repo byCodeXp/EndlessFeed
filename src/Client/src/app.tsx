@@ -1,73 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { FormComponent } from './components/base/formComponent';
+import React, { useEffect, useState } from 'react';
 import { PublishCard } from './components/publishCard';
-import { TextInputComponent } from './components/base/textInputComponent';
 import { PublishEditor } from './components/publishEditor';
 import { AvatarComponent } from './components/base/avatarComponent';
 import { useAppDispatch, useAppSelector } from './store/hooks';
-import { loadUserAsyncAction, loginAsyncAction, registerAsyncAction } from './store/reducers/account/actions';
-import { LoginRequest, RegisterRequest } from './api/services/identityAPI';
+import { loadUserAsyncAction } from './store/reducers/account/actions';
 import { logoutAction } from './store/reducers/account';
 import { tokenUtility } from './utils/tokenUtility';
+import { AuthModalForm } from './components/authModalForm';
 
 export const App = () => {
    const dispatch = useAppDispatch();
 
    const user = useAppSelector((state) => state.account.user);
 
-   const [formMode, setFormMode] = useState<'hidden' | 'login' | 'register'>('hidden');
-
-   const handleClickSignIn = () => {
-      setFormMode('login');
-   };
-
-   const handleChangeFormMode = () => {
-      switch (formMode) {
-         case 'login': {
-            setFormMode('register');
-            break;
-         }
-         case 'register': {
-            setFormMode('login');
-            break;
-         }
-      }
-   };
-
-   const formRef = useRef<HTMLDivElement>(null);
-
-   const handleClickOutsideForm = (event: React.MouseEvent<HTMLDivElement>) => {
-      // TODO: on mouse down inside form and release mouse button outside form is closed, fix it
-
-      if (event.target instanceof HTMLElement) {
-         if (!formRef.current?.contains(event.target)) {
-            setFormMode('hidden');
-         }
-      }
-   };
-
-   const handleLogin = (values: { [key: string]: string }) => {
-      if (values.email && values.password) {
-         const request: LoginRequest = {
-            email: values.email,
-            password: values.password,
-         };
-
-         dispatch(loginAsyncAction(request));
-      }
-   };
-
-   const handleRegister = (values: { [key: string]: string }) => {
-      if (values.name && values.email && values.password) {
-         const request: RegisterRequest = {
-            name: values.name,
-            email: values.email,
-            password: values.password,
-         };
-
-         dispatch(registerAsyncAction(request));
-      }
-   };
+   const [modalFormVisibility, setModalFormVisibility] = useState(false);
 
    const handleClickLogout = () => {
       dispatch(logoutAction());
@@ -78,12 +24,22 @@ export const App = () => {
       console.log(content);
    };
 
+   const handleClickSignIn = () => {
+      setModalFormVisibility(true);
+   };
+
+   const handleClickOutsideForm = () => {
+      setModalFormVisibility(false);
+   };
+
    useEffect(() => {
-      dispatch(loadUserAsyncAction());
+      if (tokenUtility.getToken()) {
+         dispatch(loadUserAsyncAction());
+      }
    }, []);
 
    useEffect(() => {
-      setFormMode('hidden');
+      setModalFormVisibility(false);
    }, [user]);
 
    return (
@@ -124,58 +80,7 @@ export const App = () => {
                </div>
             </div>
          </div>
-         {formMode !== 'hidden' && (
-            <div
-               onClick={handleClickOutsideForm}
-               className="fixed top-0 left-0 w-full h-full bg-gray-900/50 flex justify-center items-center"
-            >
-               <div ref={formRef} className="bg-gray-50 rounded-lg p-8 shadow-2xl">
-                  <div className="w-full text-center">
-                     {formMode === 'login' && 'Sign in account'}
-                     {formMode === 'register' && 'Creating new account'}
-                  </div>
-                  {formMode === 'login' && (
-                     <FormComponent onFinish={handleLogin}>
-                        <div className="mt-6">
-                           <TextInputComponent name="email" hint="Email" />
-                        </div>
-                        <div className="mt-6">
-                           <TextInputComponent name="password" hint="Password" />
-                        </div>
-                        <div className="mt-6">
-                           <button className="w-64 bg-sky-400 shadow-lg transition-shadow hover:shadow text-white hover:bg-sky-500 p-2 rounded-lg">
-                              Login
-                           </button>
-                        </div>
-                     </FormComponent>
-                  )}
-                  {formMode === 'register' && (
-                     <FormComponent onFinish={handleRegister}>
-                        <div className="mt-6">
-                           <TextInputComponent name="name" hint="Name" />
-                        </div>
-                        <div className="mt-6">
-                           <TextInputComponent name="email" hint="Email" />
-                        </div>
-                        <div className="mt-6">
-                           <TextInputComponent name="password" hint="Password" />
-                        </div>
-                        <div className="mt-6">
-                           <button className="w-64 bg-sky-400 shadow-lg transition-shadow hover:shadow text-white hover:bg-sky-500 p-2 rounded-lg">
-                              Register
-                           </button>
-                        </div>
-                     </FormComponent>
-                  )}
-                  <div className="mt-6 text-center">
-                     <button onClick={handleChangeFormMode} className="underline">
-                        {formMode === 'login' && 'Create new account'}
-                        {formMode === 'register' && 'Already has an account'}
-                     </button>
-                  </div>
-               </div>
-            </div>
-         )}
+         <AuthModalForm visibility={modalFormVisibility} onClickOutsideForm={handleClickOutsideForm} />
       </div>
    );
 };
